@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RE Market Comp Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <!-- Loading overlay -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p class="loading-text">Loading market data…</p>
+    </div>
+  </div>
+
+  <!-- File protocol error -->
+  <div id="file-protocol-error" class="error-overlay" style="display:none">
+    <div class="error-content">
+      <div class="error-icon">!</div>
+      <h2>Local Server Required</h2>
+      <p>This dashboard must be served over HTTP, not opened directly as a file.</p>
+      <p>Run in the project directory:</p>
+      <code>python3 -m http.server 8080</code>
+      <p>Then open <strong>http://localhost:8080</strong></p>
+    </div>
+  </div>
+
+  <div id="app" class="app-shell" style="display:none">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <span class="header-mark"></span>
+        <h1 class="header-title">RE Market Comp Dashboard</h1>
+      </div>
+      <div class="header-right">
+        <span class="header-subtitle">ACS 5-Year Estimates · 2020 vs 2024</span>
+      </div>
+    </header>
+
+    <!-- Tab bar -->
+    <nav class="tab-bar">
+      <button class="tab-btn active" data-tab="rankings">Rankings</button>
+      <button class="tab-btn" data-tab="charts">Charts</button>
+      <button class="tab-btn" data-tab="explorer">Explorer</button>
+    </nav>
+
+    <!-- Tab content -->
+    <main class="tab-content">
+      <!-- Rankings Tab -->
+      <section id="tab-rankings" class="tab-panel active">
+        <div class="panel-controls">
+          <div class="control-group">
+            <label class="control-label">Metric</label>
+            <select id="rank-metric" class="select-input"></select>
+          </div>
+          <div class="control-group" id="rank-year-group">
+            <label class="control-label">Year</label>
+            <div class="toggle-group">
+              <button class="toggle-btn active" data-val="2024">2024</button>
+              <button class="toggle-btn" data-val="2020">2020</button>
+              <button class="toggle-btn" data-val="cagr">CAGR</button>
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label">Sort</label>
+            <div class="toggle-group">
+              <button class="toggle-btn active" data-sort="desc">Highest First</button>
+              <button class="toggle-btn" data-sort="asc">Lowest First</button>
+            </div>
+          </div>
+        </div>
+        <div id="rank-cards" class="rank-cards"></div>
+      </section>
+
+      <!-- Charts Tab -->
+      <section id="tab-charts" class="tab-panel">
+        <div class="panel-controls">
+          <div class="control-group">
+            <label class="control-label">Values</label>
+            <div class="toggle-group" id="adj-toggle">
+              <button class="toggle-btn active" data-adj="nominal">Nominal</button>
+              <button class="toggle-btn" data-adj="adjusted">Inflation-Adjusted</button>
+            </div>
+          </div>
+        </div>
+        <div id="charts-grid" class="charts-grid"></div>
+      </section>
+
+      <!-- Explorer Tab -->
+      <section id="tab-explorer" class="tab-panel">
+        <div class="panel-controls explorer-controls">
+          <div class="control-group">
+            <label class="control-label">Markets</label>
+            <div id="market-checkboxes" class="checkbox-group"></div>
+          </div>
+          <div class="control-group">
+            <label class="control-label">Category</label>
+            <select id="exp-category" class="select-input"></select>
+          </div>
+          <div class="control-group">
+            <label class="control-label">Metric</label>
+            <select id="exp-metric" class="select-input"></select>
+          </div>
+          <div class="control-group">
+            <label class="control-label">Year</label>
+            <div class="toggle-group" id="exp-year-toggle">
+              <button class="toggle-btn active" data-year="2024">2024</button>
+              <button class="toggle-btn" data-year="2020">2020</button>
+              <button class="toggle-btn" data-year="both">Both</button>
+            </div>
+          </div>
+          <div class="control-group" id="tenure-group" style="display:none">
+            <label class="control-label">Tenure</label>
+            <div class="toggle-group" id="exp-tenure-toggle">
+              <button class="toggle-btn active" data-tenure="total">Total</button>
+              <button class="toggle-btn" data-tenure="owner">Owner</button>
+              <button class="toggle-btn" data-tenure="renter">Renter</button>
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label">Chart Type</label>
+            <div class="toggle-group" id="exp-chart-type">
+              <button class="toggle-btn active" data-type="bar">Bar</button>
+              <button class="toggle-btn" data-type="horizontalBar">Horiz Bar</button>
+              <button class="toggle-btn" data-type="donut">Donut</button>
+              <button class="toggle-btn" data-type="line">Line</button>
+            </div>
+          </div>
+        </div>
+        <div class="explorer-body">
+          <div class="explorer-chart-wrap">
+            <canvas id="explorer-canvas"></canvas>
+          </div>
+          <div id="explorer-table-wrap" class="explorer-table-wrap"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
